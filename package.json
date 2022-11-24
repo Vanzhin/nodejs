@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "node index.js",
+    "hw2": "node hw2.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
