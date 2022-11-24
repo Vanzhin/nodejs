@@ -1,4 +1,4 @@
-const colors = require("colors/safe");
+const colors = require("colors");
 const prompt = require('prompt');
 const count_start = 2;
 const count_end = 1000;
