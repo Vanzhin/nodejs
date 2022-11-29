@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node index.js",
     "hw2": "node hw2.js",
+    "hw3": "node hw3.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -13,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "colors": "^1.4.0",
+    "line-reader": "^0.4.0",
     "prompt": "^1.3.0"
   }
 }
