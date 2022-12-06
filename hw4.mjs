@@ -30,6 +30,7 @@ if(options.p){
 
 const list =  fs.readdirSync(executionDir);
 const choice = (list) =>{
+    list.unshift('../')
     inquirer.prompt([{
         name: 'fileName',
         type: 'list',
