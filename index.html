@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+
+<body>
+    <div id="main" style="display: flex;">
+        <div id="chat">
+            <h1>MySocketChat</h1>
+            <input type="text" id="input" autofocus>
+            <input type="submit" id="send" value="Send">
+            <div style="display: flex; flex-direction: column;" id="messages"></div>
+        </div>
+        <div id="online" style="display: flex; flex-direction: column;">
+            <span>online</span>
+            <div id="count"></div>
+
+        </div>
+    </div>
+
+
+    <script>
+        const socket = io('localhost:3001');
+        const user = {};
+        const addMessage = (data) => {
+            const msgSpan = `<span><strong>${data.userName} wrore: </strong>${data.msg}</span>`;
+            document.getElementById('messages').insertAdjacentHTML('afterbegin', msgSpan);
+            document.getElementById('messages').append(document.createElement('br'));
+        };
+        const addUserDiv = (user) => {
+            const userDiv = document.createElement('div');
+            userDiv.setAttribute('id', user.id);
+            userDiv.innerText = user.name;
+            document.getElementById('online').append(userDiv);
+        };
+
+        const addCount = (count) => {
+            document.getElementById('count').innerText = `(${count})`;
+
+        }
+
+        const handleUser = (data) => {
+
+            if (data.action === 'connect') {
+                addUserDiv(data.user)
+            } else if (data.action === 'disconnect') {
+                console.log(data.user.name + ' disconnected')
+                const userDiv = document.getElementById(data.user.id);
+                userDiv.remove();
+            }
+            addCount(data.count);
+
+
+
+        };
+        socket.on('connect', function () {
+            console.log('Successful connected to server');
+        });
+        socket.on('NEW_CON', function (data) {
+            Object.keys(data.users).forEach((user) => {
+                addUserDiv(data.users[user]);
+                addCount(Object.keys(data.users).length);
+
+            })
+            user.id = data.id;
+            user.name = data.users[data.id].name;
+
+        });
+        socket.on('connect_error', function () {
+            console.log('connection error');
+        });
+        socket.on('SERVER_MSG', function (data) {
+            addMessage(data);
+        });
+        socket.on('CON_CHANGE', function (data) {
+            handleUser(data);
+        });
+
+        document.getElementById('send').onclick = function () {
+            socket.emit('CLIENT_MSG',
+                {
+                    msg: document.getElementById('input').value,
+                    userName: user.name
+                });
+
+            document.getElementById('input').value = '';
+        };
+    </script>
+</body>
+
+</html>
