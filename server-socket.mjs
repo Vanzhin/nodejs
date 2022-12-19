@@ -7,9 +7,10 @@ import { faker } from '@faker-js/faker';
 const httpServer = createServer((request, response) => {
 
     const readStream = fs.createReadStream(path.join(process.cwd(), 'index.html'), 'utf8');
-    readStream.on('data', (chunk) => {
-        response.end(chunk)
-    });
+    // readStream.on('data', (chunk) => {
+    //     response.end(chunk)
+    // });
+    readStream.pipe(response);
 
     readStream.on('end', () => console.log('File reading finished.'));
     readStream.on('error', () => console.log(err));

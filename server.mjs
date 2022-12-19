@@ -26,9 +26,10 @@ http.createServer((request, response) => {
 
             const readStream = fs.createReadStream(filePath, 'utf8');
             readStream.on('data', (chunk) => {
+                
                 response.write(`<button><a href=\/?fileName=../>Back</a></button><br>`);
                 response.write(`<h2>${filePath}</h2><br>`);
-                response.end(chunk)
+                response.end(chunk);
             });
 
             readStream.on('end', () => console.log('File reading finished.'));

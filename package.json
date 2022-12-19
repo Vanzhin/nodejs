@@ -10,6 +10,8 @@
     "hw4": "node hw4.mjs",
     "hw5": "nodemon server.mjs",
     "hw6": "nodemon server-socket.mjs",
+    "hw6.1": "nodemon server-reader.mjs",
+
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {

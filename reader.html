@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reader</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+</head>
+
+<body>
+    <div style="display: flex;">
+        <h1>Reader</h1>
+        <h3>online (<span id="count"></span>)</h3>
+        <div style="display: flex; flex-direction: column;">
+            <span>search</span>
+            <input type="text" oninput="search(this)">
+        </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column;">
+        <h4><b>Current directory: </b></h4>
+        <div id="currentDirName"></div>
+        <div id="content" style="display: flex; flex-direction: column;">
+
+        </div>
+
+    </div>
+</body>
+<script type="text/javascript">
+    let searchString = null;
+
+    const socket = io('localhost:3001');
+    socket.on('connect', function () {
+        console.log('Successful connected to server');
+    });
+    socket.on('connect_error', function () {
+        console.log('connection error');
+    });
+    socket.on('NEW_CON', function (data) {
+        addCount(Object.keys(data.users).length);
+
+    });
+    socket.on('CON_CHANGE', function (data) {
+        addCount(data.count);
+    });
+
+    const addCount = (count) => {
+        document.getElementById('count').innerText = `${count}`;
+
+    };
+    const addLink = (fileName, dirToAppend) => {
+        const link = document.createElement('button');
+        link.onclick = function () {
+            render(fileName, searchString)
+        }
+        link.innerText = fileName;
+        document.getElementById(dirToAppend).append(link);
+    };
+    const search = (elemet) => {
+        searchString = elemet.value
+    };
+    const queryStringPrepare = (data) => {
+        let queryString = '?';
+        Object.keys(data).forEach((el) => {
+            queryString += data[el] ? `${el}=${data[el]}&` : ''
+        })
+        return queryString;
+    }
+
+    function render(fileName = null, searchString = null) {
+        const query = queryStringPrepare({ 'fileName': fileName, 'searchString': searchString });
+        fetch('http://localhost:3001/api' + query, {
+            method: "GET"
+        })
+            .then(response => {
+                if (response.headers.get("content-type") === "application/json") {
+                    return response.json();
+                } else if (response.headers.get("content-type") === "text/javascript") {
+                    return response.text();
+                }
+                return response;
+            }).then(response => {
+                document.getElementById('content').innerHTML = '';
+                addLink('../', 'content')
+
+                if (typeof response === "object") {
+                    const currentDir = document.getElementById('currentDirName');
+                    currentDir.innerHTML = response.path;
+
+                    response.list.forEach(link => {
+                        addLink(link, 'content')
+                    });
+                } else if (typeof response === "string") {
+                    const currentDir = document.getElementById('currentDirName');
+                    currentDir.innerHTML += '/' + fileName;
+                    const dirContent = document.getElementById('content').insertAdjacentHTML('beforeend', `<div>${response}</div>`)
+                }
+
+            })
+    };
+
+    document.addEventListener("DOMContentLoaded", render);
+</script>
+
+</html>
